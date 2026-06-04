@@ -1,0 +1,9 @@
+pytest>=8.3.0
+Appium-Python-Client>=4.0.0
+allure-pytest>=2.13.0
+python-dotenv>=1.0.0
+pydantic>=2.10.0
+pydantic-settings>=2.6.0
+requests>=2.32.0
+selenium>=4.26.0
+Faker>=33.0.0
