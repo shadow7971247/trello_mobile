@@ -5,7 +5,7 @@ from __future__ import annotations
 import allure
 import pytest
 
-from api_bridge import TrelloApiClient, board_name, prepare_board
+from api_bridge import TrelloApiClient, board_name, prepare_public_board
 from screens.workspace_screen import WorkspaceScreen
 from test_run_context import MobileRunContext
 
@@ -66,7 +66,7 @@ def test_api_board_opens_via_deep_link(
 ) -> None:
     """API создаёт доску — mobile открывает по deep link."""
     name = board_name("Smoke Board")
-    board = prepare_board(api_client, name=name)
+    board = prepare_public_board(api_client, name=name)
 
     try:
         with allure.step(f"Открыть доску через deep link ({run_context.label})"):

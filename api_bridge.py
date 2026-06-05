@@ -33,6 +33,7 @@ from fixtures.generators import (  # noqa: E402
     prepare_board,
     prepare_card,
     prepare_list,
+    prepare_public_board,
 )
 from utils.config import Config as ApiConfig  # noqa: E402
 
@@ -44,6 +45,7 @@ __all__ = [
     "list_name",
     "card_name",
     "prepare_board",
+    "prepare_public_board",
     "prepare_list",
     "prepare_card",
     "TRELLO_API_ROOT",
