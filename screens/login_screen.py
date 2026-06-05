@@ -268,7 +268,7 @@ class LoginScreen:
         if not code:
             raise RuntimeError(
                 "Atlassian запросил одноразовый код на email (вход с нового устройства, "
-                "часто в облаке LambdaTest). Задайте TRELLO_OTP в trello_ui/.env "
+                "часто в облаке BrowserStack). Задайте TRELLO_OTP в trello_ui/.env "
                 "или один раз войдите вручную на устройстве с NO_RESET=true."
             )
         with allure.step("Ввести код подтверждения из email"):

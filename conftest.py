@@ -1,4 +1,4 @@
-"""Pytest-фикстуры mobile: локальный эмулятор и LambdaTest."""
+"""Pytest-фикстуры mobile: локальный эмулятор и BrowserStack."""
 
 from __future__ import annotations
 
@@ -72,10 +72,7 @@ def run_context(request: pytest.FixtureRequest, mobile_config: MobileConfig) -> 
 
 @pytest.fixture(scope="session")
 def run_target(mobile_config: MobileConfig) -> RunTarget:
-    return RunTarget(
-        mode=mobile_config.run_mode,
-        lambdatest_is_real_mobile=mobile_config.lambdatest_is_real_mobile,
-    )
+    return RunTarget(mode=mobile_config.run_mode)
 
 
 @pytest.fixture(scope="session")

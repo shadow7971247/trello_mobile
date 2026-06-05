@@ -6,21 +6,13 @@ import os
 import sys
 from typing import Final
 
-RUN_CONTEXT_NAMES: Final[tuple[str, ...]] = ("local", "lambdatest", "browserstack")
+RUN_CONTEXT_NAMES: Final[tuple[str, ...]] = ("local", "browserstack")
 
 _PROFILES: Final[dict[str, dict[str, str]]] = {
     "local": {
         "RUN_MODE": "local",
         "APPIUM_SERVER_URL": "http://127.0.0.1:4723",
         "NO_RESET": "true",
-    },
-    "lambdatest": {
-        "RUN_MODE": "lambdatest",
-        "APPIUM_SERVER_URL": "https://mobile-hub.lambdatest.com/wd/hub",
-        "LAMBDATEST_IS_REAL_MOBILE": "false",
-        "DEVICE_NAME": "Galaxy A33 5G",
-        "PLATFORM_VERSION": "13",
-        "NO_RESET": "false",
     },
     "browserstack": {
         "RUN_MODE": "browserstack",

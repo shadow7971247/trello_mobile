@@ -14,14 +14,14 @@ from test_run_context import MobileRunContext
 @allure.story("Запуск приложения")
 @pytest.mark.mobile
 @pytest.mark.smoke
-@pytest.mark.lambdatest_smoke
+@pytest.mark.cloud_smoke
 @pytest.mark.browserstack
 @pytest.mark.no_home_reset
-@pytest.mark.context("local", "lambdatest", "browserstack")
+@pytest.mark.context("local", "browserstack")
 def test_trello_package_is_active(run_context: MobileRunContext, driver) -> None:
     """Приложение Trello в foreground (без логина)."""
     with allure.step(f"Цель прогона: {run_context.label}"):
-        assert run_context.mode in ("local", "lambdatest", "browserstack")
+        assert run_context.mode in ("local", "browserstack")
     with allure.step("Проверить package com.trello"):
         package = driver.current_package or ""
         assert package == run_context.config.app_package, (
@@ -33,9 +33,9 @@ def test_trello_package_is_active(run_context: MobileRunContext, driver) -> None
 @allure.story("Workspace")
 @pytest.mark.mobile
 @pytest.mark.smoke
-@pytest.mark.lambdatest_smoke
+@pytest.mark.cloud_smoke
 @pytest.mark.browserstack
-@pytest.mark.context("local", "lambdatest", "browserstack")
+@pytest.mark.context("local", "browserstack")
 def test_boards_tab_visible_when_logged_in(
     run_context: MobileRunContext,
     logged_in: None,

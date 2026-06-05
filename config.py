@@ -1,4 +1,4 @@
-"""Конфигурация mobile: Pydantic-профили local / browserstack / lambdatest."""
+"""Конфигурация mobile: Pydantic-профили local / browserstack."""
 
 from __future__ import annotations
 
@@ -121,66 +121,10 @@ class BrowserStackMobileConfig(BaseSettings):
         return str(value).lower() == "true"
 
 
-class LambdaTestMobileConfig(BaseSettings):
-    """LambdaTest App Automate. Файл: .env.lambdatest"""
-
-    model_config = SettingsConfigDict(extra="ignore")
-
-    appium_server_url: str = Field(
-        default="https://mobile-hub.lambdatest.com/wd/hub",
-        validation_alias="APPIUM_SERVER_URL",
-    )
-    platform_name: str = Field(default="Android", validation_alias="PLATFORM_NAME")
-    platform_version: str = Field(default="13", validation_alias="PLATFORM_VERSION")
-    device_name: str = Field(
-        default="Galaxy A33 5G", validation_alias="DEVICE_NAME"
-    )
-    lambdatest_is_real_mobile: bool = Field(
-        default=False,
-        validation_alias=AliasChoices(
-            "LAMBDATEST_IS_REAL_MOBILE", "LT_IS_REAL_MOBILE", "IS_REAL_MOBILE"
-        ),
-    )
-    app_package: str = Field(default="com.trello", validation_alias="APP_PACKAGE")
-    app_activity: str = Field(
-        default="com.trello.home.HomeActivity", validation_alias="APP_ACTIVITY"
-    )
-    automation_name: str = Field(
-        default="UiAutomator2", validation_alias="AUTOMATION_NAME"
-    )
-    no_reset: bool = Field(default=False, validation_alias="NO_RESET")
-    lambdatest_username: str = Field(
-        default="", validation_alias=AliasChoices("LAMBDATEST_USERNAME", "LT_USERNAME")
-    )
-    lambdatest_access_key: str = Field(
-        default="", validation_alias=AliasChoices("LAMBDATEST_ACCESS_KEY", "LT_ACCESS_KEY")
-    )
-    lambdatest_app: str = Field(
-        default="", validation_alias=AliasChoices("LAMBDATEST_APP", "LT_APP")
-    )
-    lambdatest_build_name: str = Field(
-        default="local", validation_alias=AliasChoices("LT_BUILD_NAME", "BUILD_NUMBER")
-    )
-    lambdatest_project_name: str = Field(
-        default="Trello Diploma QA", validation_alias="LT_PROJECT_NAME"
-    )
-    visible_timeout_sec: float = Field(
-        default=90.0, validation_alias="MOBILE_LT_VISIBLE_TIMEOUT"
-    )
-    reload_pause_sec: float = Field(default=8.0, validation_alias="MOBILE_LT_RELOAD_PAUSE")
-
-    @field_validator("no_reset", "lambdatest_is_real_mobile", mode="before")
-    @classmethod
-    def _parse_bool(cls, value: object) -> bool:
-        if isinstance(value, bool):
-            return value
-        return str(value).lower() == "true"
-
-
 class MobileConfig(BaseModel):
     model_config = ConfigDict(frozen=True)
 
-    run_mode: Literal["local", "lambdatest", "browserstack"]
+    run_mode: Literal["local", "browserstack"]
     appium_server_url: str
     platform_name: str
     platform_version: str
@@ -195,23 +139,13 @@ class MobileConfig(BaseModel):
     trello_api_key: str
     trello_api_token: str
     trello_api_base_url: str
-    lambdatest_username: str
-    lambdatest_access_key: str
-    lambdatest_app: str
-    lambdatest_build_name: str
-    lambdatest_project_name: str
-    lambdatest_is_real_mobile: bool
-    browserstack_username: str
-    browserstack_access_key: str
-    browserstack_app: str
-    browserstack_build_name: str
-    browserstack_project_name: str
+    browserstack_username: str = ""
+    browserstack_access_key: str = ""
+    browserstack_app: str = ""
+    browserstack_build_name: str = ""
+    browserstack_project_name: str = ""
     visible_timeout_sec: float
     reload_pause_sec: float
-
-    @property
-    def is_lambdatest(self) -> bool:
-        return self.run_mode == "lambdatest"
 
     @property
     def is_browserstack(self) -> bool:
@@ -219,12 +153,7 @@ class MobileConfig(BaseModel):
 
     @property
     def is_cloud(self) -> bool:
-        return self.run_mode in ("lambdatest", "browserstack")
-
-    def lambdatest_hub_url(self) -> str:
-        user = quote(self.lambdatest_username, safe="")
-        key = quote(self.lambdatest_access_key, safe="")
-        return f"https://{user}:{key}@mobile-hub.lambdatest.com/wd/hub"
+        return self.is_browserstack
 
     def browserstack_hub_url(self) -> str:
         user = quote(self.browserstack_username, safe="")
@@ -249,54 +178,8 @@ class MobileConfig(BaseModel):
             trello_api_key=creds.trello_api_key,
             trello_api_token=creds.trello_api_token,
             trello_api_base_url=creds.trello_api_base_url,
-            lambdatest_username="",
-            lambdatest_access_key="",
-            lambdatest_app="",
-            lambdatest_build_name="",
-            lambdatest_project_name="",
-            lambdatest_is_real_mobile=False,
-            browserstack_username="",
-            browserstack_access_key="",
-            browserstack_app="",
-            browserstack_build_name="",
-            browserstack_project_name="",
             visible_timeout_sec=local.visible_timeout_sec,
             reload_pause_sec=local.reload_pause_sec,
-        )
-
-    @classmethod
-    def from_lambdatest(
-        cls, remote: LambdaTestMobileConfig, creds: TrelloCredentials
-    ) -> MobileConfig:
-        return cls(
-            run_mode="lambdatest",
-            appium_server_url=remote.appium_server_url,
-            platform_name=remote.platform_name,
-            platform_version=remote.platform_version,
-            device_name=remote.device_name,
-            app_package=remote.app_package,
-            app_activity=remote.app_activity,
-            automation_name=remote.automation_name,
-            no_reset=remote.no_reset,
-            email=creds.email,
-            password=creds.password,
-            otp_code=creds.otp_code,
-            trello_api_key=creds.trello_api_key,
-            trello_api_token=creds.trello_api_token,
-            trello_api_base_url=creds.trello_api_base_url,
-            lambdatest_username=remote.lambdatest_username,
-            lambdatest_access_key=remote.lambdatest_access_key,
-            lambdatest_app=remote.lambdatest_app,
-            lambdatest_build_name=remote.lambdatest_build_name,
-            lambdatest_project_name=remote.lambdatest_project_name,
-            lambdatest_is_real_mobile=remote.lambdatest_is_real_mobile,
-            browserstack_username="",
-            browserstack_access_key="",
-            browserstack_app="",
-            browserstack_build_name="",
-            browserstack_project_name="",
-            visible_timeout_sec=remote.visible_timeout_sec,
-            reload_pause_sec=remote.reload_pause_sec,
         )
 
     @classmethod
@@ -319,12 +202,6 @@ class MobileConfig(BaseModel):
             trello_api_key=creds.trello_api_key,
             trello_api_token=creds.trello_api_token,
             trello_api_base_url=creds.trello_api_base_url,
-            lambdatest_username="",
-            lambdatest_access_key="",
-            lambdatest_app="",
-            lambdatest_build_name="",
-            lambdatest_project_name="",
-            lambdatest_is_real_mobile=False,
             browserstack_username=remote.browserstack_username,
             browserstack_access_key=remote.browserstack_access_key,
             browserstack_app=remote.browserstack_app,
@@ -349,21 +226,6 @@ class MobileConfig(BaseModel):
             raise ValueError(
                 f"Не заданы обязательные переменные окружения: {', '.join(missing)}"
             )
-        if self.is_lambdatest:
-            lt_missing = [
-                name
-                for name, value in (
-                    ("LAMBDATEST_USERNAME", self.lambdatest_username),
-                    ("LAMBDATEST_ACCESS_KEY", self.lambdatest_access_key),
-                    ("LAMBDATEST_APP", self.lambdatest_app),
-                )
-                if not value
-            ]
-            if lt_missing:
-                raise ValueError(
-                    f"Для LambdaTest задайте: {', '.join(lt_missing)} "
-                    "(загрузите APK в LT → App ID lt://...)"
-                )
         if self.is_browserstack:
             bs_missing = [
                 name
@@ -384,23 +246,14 @@ class MobileConfig(BaseModel):
 def load_mobile_config() -> MobileConfig:
     mode = os.getenv("RUN_MODE", "local").strip().lower()
     creds = TrelloCredentials.from_env()
-    if mode == "lambdatest":
-        return MobileConfig.from_lambdatest(LambdaTestMobileConfig(), creds)
     if mode == "browserstack":
         return MobileConfig.from_browserstack(BrowserStackMobileConfig(), creds)
     return MobileConfig.from_local(LocalMobileConfig(), creds)
 
 
 class RunTarget:
-    def __init__(
-        self, mode: str, *, lambdatest_is_real_mobile: bool = False
-    ) -> None:
+    def __init__(self, mode: str) -> None:
         self.mode = mode.strip().lower()
-        self.lambdatest_is_real_mobile = lambdatest_is_real_mobile
-
-    @property
-    def is_lambdatest(self) -> bool:
-        return self.mode == "lambdatest"
 
     @property
     def is_browserstack(self) -> bool:
@@ -408,7 +261,7 @@ class RunTarget:
 
     @property
     def is_cloud(self) -> bool:
-        return self.mode in ("lambdatest", "browserstack")
+        return self.is_browserstack
 
     @property
     def is_local(self) -> bool:
@@ -416,9 +269,6 @@ class RunTarget:
 
     @property
     def label(self) -> str:
-        if self.is_lambdatest:
-            kind = "real device" if self.lambdatest_is_real_mobile else "virtual emulator"
-            return f"LambdaTest ({kind})"
         if self.is_browserstack:
             return "BrowserStack App Automate"
         return "local emulator"
@@ -437,5 +287,3 @@ def get_mobile_config() -> MobileConfig:
 def reset_mobile_config() -> None:
     global _cached_config
     _cached_config = None
-
-

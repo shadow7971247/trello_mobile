@@ -1,4 +1,4 @@
-"""Загрузка .env: trello_ui (учётка) + профиль .env.local / .env.browserstack / .env.lambdatest."""
+"""Загрузка .env: trello_ui (учётка) + профиль .env.local / .env.browserstack."""
 
 from __future__ import annotations
 
@@ -14,7 +14,7 @@ _LEGACY_ENV = _PROJECT_ROOT / ".env"
 
 def reload_env(run_mode: str | None = None) -> str:
     """
-    trello_ui/.env → .env.{local|browserstack|lambdatest}; для local ещё .env (legacy).
+    trello_ui/.env → .env.{local|browserstack}; для local ещё .env (legacy).
     Возвращает активный режим.
     """
     load_dotenv(_SHARED_UI_ENV)
@@ -22,7 +22,6 @@ def reload_env(run_mode: str | None = None) -> str:
     profile = _PROJECT_ROOT / f".env.{mode}"
     if profile.is_file():
         load_dotenv(profile, override=True)
-    # legacy .env — только local; иначе затирает DEVICE_NAME из .env.lambdatest
     if mode == "local" and _LEGACY_ENV.is_file():
         load_dotenv(_LEGACY_ENV, override=True)
     os.environ["RUN_MODE"] = mode

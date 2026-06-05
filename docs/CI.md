@@ -1,6 +1,6 @@
 # CI: Jenkins + Allure TestOps
 
-Репозиторий **trello_mobile** — Appium на эмуляторе или в облаке.
+Репозиторий **trello_mobile** — Appium на эмуляторе (локально) или **BrowserStack** (Jenkins).
 
 ## Зависимость от trello_api
 
@@ -8,33 +8,27 @@
 TRELLO_API_PATH=${WORKSPACE}/trello_api
 ```
 
-## BrowserStack (рекомендуется для Jenkins)
+## BrowserStack (Jenkins)
 
 ```bash
-pytest -m lambdatest_smoke --run-context browserstack --alluredir=allure-results
+pytest -m cloud_smoke --run-context browserstack --alluredir=allure-results
 ```
 
 Секреты Jenkins:
 
 - `BROWSERSTACK_USERNAME`, `BROWSERSTACK_ACCESS_KEY`
 - `TRELLO_API_KEY`, `TRELLO_API_TOKEN`
-- `TRELLO_EMAIL`, `TRELLO_PASSWORD` (логин в приложении)
+- `TRELLO_EMAIL`, `TRELLO_PASSWORD`
 - `ALLURE_TOKEN`
 
 Публично в shell:
 
-- `BROWSERSTACK_APP=bs://...` (App ID после загрузки APK)
+- `BROWSERSTACK_APP=bs://...`
 - `RUN_MODE=browserstack` или `--run-context browserstack`
 
-**Лимит:** ~100 минут на тарифе — гоняйте только `-m lambdatest_smoke` (2 теста) до финальной проверки.
+**Лимит:** ~100 минут на тарифе — гоняйте только `-m cloud_smoke` (2 теста) до финальной проверки.
 
-## LambdaTest (альтернатива)
-
-```bash
-pytest -m lambdatest_smoke --run-context lambdatest --alluredir=allure-results
-```
-
-## Local emulator
+## Local emulator (только на своей машине)
 
 ```bash
 pytest -m "not browserstack" --run-context local --alluredir=allure-results
