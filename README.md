@@ -1,20 +1,34 @@
 # trello-mobile-tests
 
-Mobile-автотесты Trello (Appium). **API-first** + проверка в приложении на **локальном эмуляторе** или **LambdaTest**.
+Mobile-автотесты Trello (Appium). **API-first** + проверка в приложении на **локальном эмуляторе**, **BrowserStack** или **LambdaTest**.
 
 Экосистема: **trello_api** → **trello_ui** → **trello_mobile**. CI: [docs/CI.md](docs/CI.md)
 
 ## Конфигурация (диплом)
 
-- `config.py` — Pydantic-профили **`LocalMobileConfig`** и **`LambdaTestMobileConfig`**
+- `config.py` — Pydantic-профили **`LocalMobileConfig`**, **`BrowserStackMobileConfig`**, **`LambdaTestMobileConfig`**
 - `.env` с Trello/API (или общий `.env` из **trello_ui** при локальной разработке)
 - `.env.local` — эмулятор
-- `.env.lambdatest` — облако LambdaTest
+- `.env.browserstack` — BrowserStack App Automate
+- `.env.lambdatest` — LambdaTest
 
 ```bash
 copy .env.local.example .env.local
+copy .env.browserstack.example .env.browserstack
 copy .env.lambdatest.example .env.lambdatest
 ```
+
+## BrowserStack
+
+1. Загрузите APK в [BrowserStack App Automate](https://app-automate.browserstack.com/) → скопируйте **App ID** (`bs://...`).
+2. Заполните `.env.browserstack` (username, access key, `BROWSERSTACK_APP`).
+3. Smoke (2 теста, экономит минуты):
+
+```bash
+pytest -m lambdatest_smoke --run-context browserstack
+```
+
+Документация: [Appium + BrowserStack](https://www.browserstack.com/docs/app-automate/appium/getting-started/python)
 
 ## LambdaTest
 
@@ -65,6 +79,7 @@ Appium: `appium -p 4723`, AVD запущен, `adb devices`.
 
 ```bash
 pytest -m mobile --run-context local
+pytest -m lambdatest_smoke --run-context browserstack
 pytest -m lambdatest_smoke --run-context lambdatest
 ```
 

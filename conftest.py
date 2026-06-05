@@ -121,11 +121,11 @@ def _create_appium_driver(
 def driver_session(
     mobile_config: MobileConfig,
 ) -> Generator[webdriver.Remote | None, None, None]:
-    if not mobile_config.is_lambdatest:
+    if not mobile_config.is_cloud:
         yield None
         return
     client = _create_appium_driver(
-        mobile_config, session_name="trello-mobile-lt-session"
+        mobile_config, session_name="trello-mobile-cloud-session"
     )
     yield client
     try:
@@ -139,7 +139,7 @@ def driver(
     mobile_config: MobileConfig,
     driver_session: webdriver.Remote | None,
 ) -> Generator[webdriver.Remote, None, None]:
-    if mobile_config.is_lambdatest:
+    if mobile_config.is_cloud:
         assert driver_session is not None
         yield driver_session
         return
@@ -157,7 +157,7 @@ def driver(
 def logged_in_session(
     driver_session: webdriver.Remote | None, mobile_config: MobileConfig
 ) -> None:
-    if mobile_config.is_lambdatest and driver_session is not None:
+    if mobile_config.is_cloud and driver_session is not None:
         LoginScreen(driver_session).login_if_needed(
             mobile_config.email,
             mobile_config.password,
@@ -171,7 +171,7 @@ def logged_in(
     mobile_config: MobileConfig,
     logged_in_session: None,
 ) -> None:
-    if mobile_config.is_lambdatest:
+    if mobile_config.is_cloud:
         return
     LoginScreen(driver).login_if_needed(
         mobile_config.email,

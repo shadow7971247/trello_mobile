@@ -9,9 +9,17 @@ import pytest
 
 from config import MobileConfig, RunTarget
 
-_CONTEXT_ENV_KEYS: dict[str, tuple[str, str]] = {
-    "visible_timeout": ("MOBILE_LT_VISIBLE_TIMEOUT", "MOBILE_LOCAL_VISIBLE_TIMEOUT"),
-    "reload_pause": ("MOBILE_LT_RELOAD_PAUSE", "MOBILE_LOCAL_RELOAD_PAUSE"),
+_CONTEXT_ENV_KEYS: dict[str, tuple[str, str, str]] = {
+    "visible_timeout": (
+        "MOBILE_LT_VISIBLE_TIMEOUT",
+        "MOBILE_BS_VISIBLE_TIMEOUT",
+        "MOBILE_LOCAL_VISIBLE_TIMEOUT",
+    ),
+    "reload_pause": (
+        "MOBILE_LT_RELOAD_PAUSE",
+        "MOBILE_BS_RELOAD_PAUSE",
+        "MOBILE_LOCAL_RELOAD_PAUSE",
+    ),
 }
 
 
@@ -41,8 +49,12 @@ class MobileRunContext:
         return self.mode == "lambdatest"
 
     @property
+    def is_browserstack(self) -> bool:
+        return self.mode == "browserstack"
+
+    @property
     def is_cloud(self) -> bool:
-        return self.is_lambdatest
+        return self.mode in ("lambdatest", "browserstack")
 
     @property
     def visible_timeout_sec(self) -> float:
@@ -52,11 +64,16 @@ class MobileRunContext:
     def reload_pause_sec(self) -> float:
         return self.config.reload_pause_sec
 
-    def require_lambdatest_credentials(self) -> None:
-        if not self.config.lambdatest_app:
+    def require_cloud_app(self) -> None:
+        if self.is_lambdatest and not self.config.lambdatest_app:
             pytest.fail(
                 "Для LambdaTest задайте LAMBDATEST_APP=lt://... "
                 "(загрузите APK в LT Dashboard)"
+            )
+        if self.is_browserstack and not self.config.browserstack_app:
+            pytest.fail(
+                "Для BrowserStack задайте BROWSERSTACK_APP=bs://... "
+                "(загрузите APK в BS Dashboard)"
             )
 
     @classmethod
@@ -75,11 +92,15 @@ class MobileRunContext:
     def peek_env(name: str, context: str) -> str:
         if name not in _CONTEXT_ENV_KEYS:
             raise KeyError(f"Неизвестный ключ контекста: {name!r}")
-        lt_key, local_key = _CONTEXT_ENV_KEYS[name]
-        key = lt_key if context == "lambdatest" else local_key
-        default = "90" if context == "lambdatest" else "30"
+        lt_key, bs_key, local_key = _CONTEXT_ENV_KEYS[name]
+        if context == "lambdatest":
+            key, default = lt_key, "90"
+        elif context == "browserstack":
+            key, default = bs_key, "90"
+        else:
+            key, default = local_key, "30"
         if name == "reload_pause":
-            default = "8" if context == "lambdatest" else "3"
+            default = "8" if context in ("lambdatest", "browserstack") else "3"
         return os.getenv(key, default)
 
 
@@ -91,4 +112,6 @@ def _allowed_modes_from_item(item: pytest.Item) -> tuple[str, ...] | None:
         return ("local",)
     if item.get_closest_marker("lambdatest_only") is not None:
         return ("lambdatest",)
+    if item.get_closest_marker("browserstack_only") is not None:
+        return ("browserstack",)
     return None

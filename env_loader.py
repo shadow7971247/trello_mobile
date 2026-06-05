@@ -1,4 +1,4 @@
-"""Загрузка .env: trello_ui (учётка) + профиль .env.local / .env.lambdatest."""
+"""Загрузка .env: trello_ui (учётка) + профиль .env.local / .env.browserstack / .env.lambdatest."""
 
 from __future__ import annotations
 
@@ -14,7 +14,7 @@ _LEGACY_ENV = _PROJECT_ROOT / ".env"
 
 def reload_env(run_mode: str | None = None) -> str:
     """
-    trello_ui/.env → .env.{local|lambdatest}; для local ещё .env (legacy).
+    trello_ui/.env → .env.{local|browserstack|lambdatest}; для local ещё .env (legacy).
     Возвращает активный режим.
     """
     load_dotenv(_SHARED_UI_ENV)
