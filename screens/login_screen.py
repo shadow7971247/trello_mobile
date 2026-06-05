@@ -11,6 +11,7 @@ from selenium.webdriver.support import expected_conditions as ec
 from selenium.webdriver.support.ui import WebDriverWait
 
 from screens.resilient_wait import ResilientWait
+from mobile_utils.mobile_attach import add_screenshot, add_xml
 
 
 class LoginScreen:
@@ -33,6 +34,7 @@ class LoginScreen:
                     self._is_logged_in,
                     message="Главный экран Trello не загрузился",
                 )
+                add_screenshot(self._driver, "Уже авторизован")
                 return self
             if not self._webview_has_login_form():
                 self._open_email_login()
@@ -48,6 +50,7 @@ class LoginScreen:
                 self._is_logged_in,
                 message="После входа главный экран Trello не загрузился",
             )
+            add_screenshot(self._driver, "Вход в приложение")
         return self
 
     def _is_logged_in(self) -> bool:
@@ -334,12 +337,8 @@ class LoginScreen:
         element.send_keys(value)
 
     def _attach_debug(self) -> None:
+        add_xml(self._driver, "login_page_source")
         try:
-            allure.attach(
-                self._driver.page_source,
-                name="login_page_source",
-                attachment_type=allure.attachment_type.XML,
-            )
             allure.attach(
                 ", ".join(self._driver.contexts),
                 name="contexts",
@@ -347,3 +346,4 @@ class LoginScreen:
             )
         except Exception:
             pass
+        add_screenshot(self._driver, "Экран входа — ошибка")

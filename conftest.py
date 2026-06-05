@@ -19,6 +19,7 @@ from run_context import RUN_CONTEXT_NAMES, get_active_run_context, resolve_and_a
 from screens.login_screen import LoginScreen
 from screens.workspace_screen import WorkspaceScreen
 from test_run_context import MobileRunContext
+from mobile_utils.mobile_attach import add_browserstack_video, add_screenshot, add_xml
 
 from pytest_markers import apply_local_browserstack_markers
 
@@ -124,7 +125,14 @@ def driver_session(
     client = _create_appium_driver(
         mobile_config, session_name="trello-mobile-cloud-session"
     )
+    session_id = client.session_id
     yield client
+    if mobile_config.is_browserstack:
+        add_browserstack_video(
+            session_id,
+            mobile_config.browserstack_username,
+            mobile_config.browserstack_access_key,
+        )
     try:
         client.quit()
     except Exception:
@@ -143,7 +151,14 @@ def driver(
     client = _create_appium_driver(
         mobile_config, session_name="trello-mobile-local"
     )
+    session_id = client.session_id
     yield client
+    if mobile_config.is_browserstack:
+        add_browserstack_video(
+            session_id,
+            mobile_config.browserstack_username,
+            mobile_config.browserstack_access_key,
+        )
     try:
         client.quit()
     except Exception:
@@ -191,17 +206,21 @@ def mobile_reset_home(
     WorkspaceScreen(driver).go_home()
 
 
+def _report_outcome_label(outcome: str) -> str:
+    return {"passed": "успех", "failed": "ошибка", "skipped": "пропуск"}.get(
+        outcome, outcome
+    )
+
+
 @pytest.hookimpl(hookwrapper=True, tryfirst=True)
 def pytest_runtest_makereport(item: pytest.Item) -> Generator[None, None, None]:
     outcome = yield
     report = outcome.get_result()
-    if report.when != "call" or not report.failed:
+    if report.when != "call":
         return
     test_driver = item.funcargs.get("driver")
     if test_driver is None:
         return
-    try:
-        png = test_driver.get_screenshot_as_png()
-        allure.attach(png, name="screenshot", attachment_type=allure.attachment_type.PNG)
-    except Exception:
-        pass
+    label = _report_outcome_label(report.outcome)
+    add_screenshot(test_driver, f"{item.name} — {label}")
+    add_xml(test_driver, f"UI hierarchy — {item.name}")

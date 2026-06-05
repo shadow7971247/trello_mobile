@@ -9,6 +9,7 @@ from appium.webdriver.common.appiumby import AppiumBy
 from selenium.common.exceptions import NoSuchElementException, WebDriverException
 
 from screens.resilient_wait import Locator, ResilientWait
+from mobile_utils.mobile_attach import add_screenshot
 
 _BOARDS_TAB_LOCATORS: tuple[Locator, ...] = (
     (AppiumBy.XPATH, "//*[@text='Boards' or @text='Доски']"),
@@ -41,17 +42,24 @@ class WorkspaceScreen:
         self._driver = driver
         self._rw = resilient or ResilientWait.from_config(driver)
 
+    @staticmethod
+    def _capture(driver, step_name: str) -> None:
+        add_screenshot(driver, step_name)
+
     def assert_boards_workspace_visible(self) -> WorkspaceScreen:
-        with allure.step("Проверить экран досок (Boards / Доски)"):
+        step = "Проверить экран досок (Boards / Доски)"
+        with allure.step(step):
             self._ensure_boards_tab()
             self._rw.wait_until(
                 self._on_boards_list,
                 message="Экран списка досок (Boards / Доски) не загрузился",
             )
+            self._capture(self._driver, step)
         return self
 
     def go_home(self) -> WorkspaceScreen:
-        with allure.step("Вернуться на экран досок"):
+        step = "Вернуться на экран досок"
+        with allure.step(step):
             try:
                 self._driver.activate_app(self._rw._app_package)
             except WebDriverException:
@@ -71,6 +79,7 @@ class WorkspaceScreen:
                 _home_ready,
                 message="Не удалось вернуться на экран досок",
             )
+            self._capture(self._driver, step)
         return self
 
     def _on_boards_list(self) -> bool:
@@ -99,18 +108,23 @@ class WorkspaceScreen:
     def open_board(
         self, board_name: str, board_url: str | None = None
     ) -> WorkspaceScreen:
-        with allure.step(f"Открыть доску «{board_name}»"):
+        step = f"Открыть доску «{board_name}»"
+        with allure.step(step):
             if board_url:
-                return self.open_board_via_url(board_url)
+                result = self.open_board_via_url(board_url)
+                self._capture(self._driver, step)
+                return result
             self.go_home()
             self._refresh_boards_list()
             board = self._find_board(board_name, clickable=True)
             board.click()
             self._wait_board_open(board_name)
+            self._capture(self._driver, step)
         return self
 
     def open_board_via_url(self, board_url: str) -> WorkspaceScreen:
-        with allure.step("Открыть доску по ссылке API"):
+        step = "Открыть доску по ссылке API"
+        with allure.step(step):
             self._driver.execute_script(
                 "mobile: deepLink",
                 {"url": board_url, "package": self._rw._app_package},
@@ -118,6 +132,7 @@ class WorkspaceScreen:
             pause = 5 if self._rw._is_cloud else 2
             time.sleep(pause)
             self._wait_board_open()
+            self._capture(self._driver, step)
         return self
 
     def _wait_board_open(self, board_name: str | None = None) -> None:
@@ -145,7 +160,8 @@ class WorkspaceScreen:
     def should_have_board(
         self, board_name: str, board_url: str | None = None
     ) -> WorkspaceScreen:
-        with allure.step(f"Проверить доску «{board_name}»"):
+        step = f"Проверить доску «{board_name}»"
+        with allure.step(step):
             self.go_home()
             self._refresh_boards_list()
             try:
@@ -155,6 +171,7 @@ class WorkspaceScreen:
                     raise
                 self.open_board_via_url(board_url)
                 self._wait_board_open(board_name)
+            self._capture(self._driver, step)
         return self
 
     def _ensure_boards_tab(self) -> None:
