@@ -17,8 +17,8 @@ _PROFILES: Final[dict[str, dict[str, str]]] = {
     "browserstack": {
         "RUN_MODE": "browserstack",
         "APPIUM_SERVER_URL": "https://hub-cloud.browserstack.com/wd/hub",
-        "DEVICE_NAME": "Samsung Galaxy S22",
-        "PLATFORM_VERSION": "12.0",
+        "DEVICE_NAME": "Google Pixel 8",
+        "PLATFORM_VERSION": "14.0",
         "NO_RESET": "false",
     },
 }

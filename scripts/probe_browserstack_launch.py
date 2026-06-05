@@ -20,7 +20,18 @@ if __name__ == "__main__":
     env_loader.reload_env("browserstack")
     reset_mobile_config()
     cfg = get_mobile_config()
-    cfg.validate()
+    missing = [
+        name
+        for name, value in (
+            ("BROWSERSTACK_USERNAME", cfg.browserstack_username),
+            ("BROWSERSTACK_ACCESS_KEY", cfg.browserstack_access_key),
+            ("BROWSERSTACK_APP", cfg.browserstack_app),
+        )
+        if not value
+    ]
+    if missing:
+        print(f"Задайте в .env.browserstack: {', '.join(missing)}")
+        sys.exit(1)
 
     print("Hub: hub-cloud.browserstack.com/wd/hub")
     app = cfg.browserstack_app or ""

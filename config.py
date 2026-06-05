@@ -79,9 +79,9 @@ class BrowserStackMobileConfig(BaseSettings):
         validation_alias="APPIUM_SERVER_URL",
     )
     platform_name: str = Field(default="Android", validation_alias="PLATFORM_NAME")
-    platform_version: str = Field(default="12.0", validation_alias="PLATFORM_VERSION")
+    platform_version: str = Field(default="14.0", validation_alias="PLATFORM_VERSION")
     device_name: str = Field(
-        default="Samsung Galaxy S22", validation_alias="DEVICE_NAME"
+        default="Google Pixel 8", validation_alias="DEVICE_NAME"
     )
     app_package: str = Field(default="com.trello", validation_alias="APP_PACKAGE")
     app_activity: str = Field(

@@ -30,6 +30,8 @@ def browserstack_capabilities(
         "appium:deviceName": config.device_name,
         "appium:platformVersion": config.platform_version,
         "appium:app": config.browserstack_app,
+        "appium:appPackage": config.app_package,
+        "appium:appActivity": config.app_activity,
         "appium:noReset": config.no_reset,
         "appium:autoGrantPermissions": True,
         "appium:newCommandTimeout": 300,
@@ -40,6 +42,7 @@ def browserstack_capabilities(
             "buildName": config.browserstack_build_name,
             "sessionName": session_name,
             "networkLogs": True,
+            "deviceLogs": True,
             "appiumVersion": "2.0.1",
         },
     }

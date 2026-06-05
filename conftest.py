@@ -187,6 +187,7 @@ def mobile_reset_home(
         return
     if "logged_in" not in request.fixturenames:
         return
+    request.getfixturevalue("logged_in")
     WorkspaceScreen(driver).go_home()
 
 

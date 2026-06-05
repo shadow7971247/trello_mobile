@@ -18,6 +18,14 @@ copy .env.browserstack.example .env.browserstack
 
 ## BrowserStack
 
+**Устройство по умолчанию:** `Google Pixel 8` / Android `14.0` (см. `.env.browserstack`).
+
+Если сессия падает с `app launch failed` — часто виноват **слишком новый APK Trello** (например `2026.10.x`).
+Загрузите **более старую** сборку APK (APKMirror и т.п.), получите новый `bs://...`.
+Activity в APK: `com.trello.home.HomeActivity` (не `com.trello.app.activity.HomeActivity`).
+
+Диагностика устройств: `python scripts/probe_bs_devices.py`
+
 1. Загрузите APK в [BrowserStack App Automate](https://app-automate.browserstack.com/) → **App ID** (`bs://...`).
 2. Заполните `.env.browserstack` (username, access key, `BROWSERSTACK_APP`).
 3. Проверка сессии:
