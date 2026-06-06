@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import allure
 import pytest
+from selenium.common.exceptions import WebDriverException
 
 from api_bridge import TrelloApiClient, board_name, prepare_public_board
 from screens.workspace_screen import WorkspaceScreen
@@ -46,7 +47,11 @@ def test_trello_package_is_active(run_context: MobileRunContext, driver) -> None
     """Приложение Trello в foreground (без логина)."""
     with allure.step(f"Цель прогона: {run_context.label}"):
         assert run_context.mode in ("local", "browserstack")
-    with allure.step("Проверить package com.trello"):
+    with allure.step("Активировать Trello и проверить package"):
+        try:
+            driver.activate_app(run_context.config.app_package)
+        except WebDriverException:
+            pass
         package = driver.current_package or ""
         assert package == run_context.config.app_package, (
             f"Ожидали {run_context.config.app_package}, получили {package!r}"

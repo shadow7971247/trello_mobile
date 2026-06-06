@@ -175,8 +175,6 @@ def logged_in_session(
             mobile_config.password,
             otp_code=mobile_config.otp_code,
         )
-        if mobile_config.is_browserstack:
-            WorkspaceScreen(driver_session).assert_boards_workspace_visible()
 
 
 @pytest.fixture

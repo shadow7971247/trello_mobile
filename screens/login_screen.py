@@ -29,6 +29,7 @@ class LoginScreen:
     ) -> LoginScreen:
         with allure.step("Войти в приложение при необходимости"):
             time.sleep(3)
+            self._return_to_trello_app()
             if self._is_logged_in():
                 self._rw.wait_until(
                     self._is_logged_in,
@@ -50,8 +51,24 @@ class LoginScreen:
                 self._is_logged_in,
                 message="После входа главный экран Trello не загрузился",
             )
+            self._return_to_trello_app()
             add_screenshot(self._driver, "Вход в приложение")
         return self
+
+    def _return_to_trello_app(self) -> None:
+        """После WebView/Chrome (Atlassian login) вернуть foreground Trello."""
+        app_package = "com.trello"
+        current = self._driver.current_package or ""
+        if current == app_package and self._is_logged_in():
+            return
+        with allure.step("Активировать приложение Trello"):
+            self._to_native()
+            try:
+                self._driver.activate_app(app_package)
+            except WebDriverException:
+                pass
+            time.sleep(3)
+            add_screenshot(self._driver, "activate_app Trello")
 
     def _is_logged_in(self) -> bool:
         self._to_native()
@@ -246,6 +263,7 @@ class LoginScreen:
 
             self._to_native()
             self._handle_step_up_verification(otp_code)
+            self._return_to_trello_app()
             self._wait.until(
                 lambda _: self._is_logged_in(),
                 message="boards screen after login",
