@@ -183,8 +183,6 @@ def logged_in(
     mobile_config: MobileConfig,
     logged_in_session: None,
 ) -> None:
-    if mobile_config.is_cloud:
-        return
     LoginScreen(driver).login_if_needed(
         mobile_config.email,
         mobile_config.password,
@@ -194,7 +192,9 @@ def logged_in(
 
 @pytest.fixture(autouse=True)
 def mobile_reset_home(
-    request: pytest.FixtureRequest, driver: webdriver.Remote
+    request: pytest.FixtureRequest,
+    driver: webdriver.Remote,
+    mobile_config: MobileConfig,
 ) -> None:
     if request.node.get_closest_marker("mobile") is None:
         return
@@ -203,6 +203,8 @@ def mobile_reset_home(
     if "logged_in" not in request.fixturenames:
         return
     request.getfixturevalue("logged_in")
+    if mobile_config.is_browserstack:
+        return
     WorkspaceScreen(driver).go_home()
 
 
