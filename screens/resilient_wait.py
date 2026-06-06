@@ -148,16 +148,27 @@ class ResilientWait:
         try:
             return attempt()
         except (TimeoutException, AssertionError, TimeoutError) as first_error:
-            with allure.step(f"{message}: повтор после перезагрузки"):
+            retry_label = (
+                "повтор ожидания (BrowserStack)"
+                if self._is_cloud
+                else "повтор после перезагрузки"
+            )
+            with allure.step(f"{message}: {retry_label}"):
                 allure.attach(
                     str(first_error),
                     name="first_attempt_error",
                     attachment_type=allure.attachment_type.TEXT,
                 )
-                self.reload_app()
+                if self._is_cloud:
+                    time.sleep(self._reload_pause_sec)
+                else:
+                    self.reload_app()
                 try:
                     return attempt()
                 except (TimeoutException, AssertionError, TimeoutError) as second_error:
-                    raise AssertionError(
-                        f"{message} (после перезагрузки приложения): {second_error}"
-                    ) from second_error
+                    suffix = (
+                        " (повтор на BrowserStack)"
+                        if self._is_cloud
+                        else " (после перезагрузки приложения)"
+                    )
+                    raise AssertionError(f"{message}{suffix}: {second_error}") from second_error

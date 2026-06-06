@@ -91,11 +91,11 @@ class LoginScreen:
         )
         for locator in locators:
             try:
-                self._driver.find_element(*locator)
-                return True
+                if self._driver.find_element(*locator).is_displayed():
+                    return True
             except Exception:
                 continue
-        return not self._on_sign_in_screen() and self._driver.current_package == "com.trello"
+        return False
 
     def _on_sign_in_screen(self) -> bool:
         markers = (
@@ -103,6 +103,10 @@ class LoginScreen:
             (
                 AppiumBy.XPATH,
                 "//*[contains(@text,'SIGN IN WITH') or contains(@text,'ВОЙТИ')]",
+            ),
+            (
+                AppiumBy.XPATH,
+                "//*[@text='Log in' or @text='Войти']",
             ),
         )
         for locator in markers:
