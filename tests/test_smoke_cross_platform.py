@@ -1,10 +1,9 @@
-"""Smoke: тест объявляет @pytest.mark.context; run_context подтягивает срез .env."""
+"""Smoke на локальном эмуляторе (логин + API-bridge). BrowserStack — test_smoke_browserstack.py."""
 
 from __future__ import annotations
 
 import allure
 import pytest
-from selenium.common.exceptions import WebDriverException
 
 from api_bridge import TrelloApiClient, board_name, prepare_public_board
 from screens.workspace_screen import WorkspaceScreen
@@ -15,9 +14,7 @@ from test_run_context import MobileRunContext
 @allure.story("Workspace")
 @pytest.mark.mobile
 @pytest.mark.smoke
-@pytest.mark.cloud_smoke
-@pytest.mark.browserstack
-@pytest.mark.context("local", "browserstack")
+@pytest.mark.local_only
 def test_boards_tab_visible_when_logged_in(
     run_context: MobileRunContext,
     logged_in: None,
@@ -33,29 +30,6 @@ def test_boards_tab_visible_when_logged_in(
             attachment_type=allure.attachment_type.TEXT,
         )
     WorkspaceScreen(driver).assert_boards_workspace_visible()
-
-
-@allure.feature("Smoke")
-@allure.story("Запуск приложения")
-@pytest.mark.mobile
-@pytest.mark.smoke
-@pytest.mark.cloud_smoke
-@pytest.mark.browserstack
-@pytest.mark.no_home_reset
-@pytest.mark.context("local", "browserstack")
-def test_trello_package_is_active(run_context: MobileRunContext, driver) -> None:
-    """Приложение Trello в foreground (без логина)."""
-    with allure.step(f"Цель прогона: {run_context.label}"):
-        assert run_context.mode in ("local", "browserstack")
-    with allure.step("Активировать Trello и проверить package"):
-        try:
-            driver.activate_app(run_context.config.app_package)
-        except WebDriverException:
-            pass
-        package = driver.current_package or ""
-        assert package == run_context.config.app_package, (
-            f"Ожидали {run_context.config.app_package}, получили {package!r}"
-        )
 
 
 @allure.feature("Smoke")

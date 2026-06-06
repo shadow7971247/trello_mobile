@@ -34,11 +34,13 @@ Activity в APK: `com.trello.home.HomeActivity` (не `com.trello.app.activity.H
 python scripts/probe_browserstack_launch.py
 ```
 
-4. Smoke в CI (2 теста, экономит минуты):
+4. Smoke в CI (3 теста **без логина** Atlassian — полные сценарии на эмуляторе):
 
 ```bash
 pytest -m cloud_smoke --run-context browserstack
 ```
+
+Файл: `tests/test_smoke_browserstack.py` — package, welcome, reactivate.
 
 Документация: [Appium + BrowserStack](https://www.browserstack.com/docs/app-automate/appium/getting-started/python)
 

@@ -8,31 +8,38 @@
 TRELLO_API_PATH=${WORKSPACE}/trello_api
 ```
 
+Нужна для **локальных** тестов с API-bridge. Для `cloud_smoke` на BrowserStack — не обязательна.
+
 ## BrowserStack (Jenkins)
 
 ```bash
 pytest -m cloud_smoke --run-context browserstack --alluredir=allure-results
 ```
 
+**3 smoke-теста без логина** (`tests/test_smoke_browserstack.py`):
+
+- запуск APK, `com.trello` в foreground;
+- экран Welcome / Log in;
+- повторный `activate_app`.
+
 Секреты Jenkins:
 
 - `BROWSERSTACK_USERNAME`, `BROWSERSTACK_ACCESS_KEY`
-- `TRELLO_API_KEY`, `TRELLO_API_TOKEN`
-- `TRELLO_EMAIL`, `TRELLO_PASSWORD`
-- `ALLURE_TOKEN`
+- `BROWSERSTACK_APP=bs://...`
+
+`TRELLO_EMAIL` / `TRELLO_PASSWORD` для `cloud_smoke` **не нужны**.
 
 Публично в shell:
 
-- `BROWSERSTACK_APP=bs://...`
 - `RUN_MODE=browserstack` или `--run-context browserstack`
 
-**Лимит:** ~100 минут на тарифе — гоняйте только `-m cloud_smoke` (2 теста) до финальной проверки.
-
-## Local emulator (только на своей машине)
+## Local emulator (полные сценарии с логином)
 
 ```bash
-pytest -m "not browserstack" --run-context local --alluredir=allure-results
+pytest -m "mobile and not browserstack" --run-context local --alluredir=allure-results
 ```
+
+Логин, доски, карточки, deep link — только на эмуляторе.
 
 ## Allure TestOps
 
